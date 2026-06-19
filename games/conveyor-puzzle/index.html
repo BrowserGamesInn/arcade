@@ -29,6 +29,18 @@
         pointer-events: auto;
       }
 
+      #level-display {
+        font-size: 11px;
+        color: #666;
+        letter-spacing: 0.08em;
+      }
+
+      #level-title {
+        font-size: 13px;
+        color: #ccc;
+        font-weight: bold;
+      }
+
       #phase-label {
         font-size: 11px;
         color: #888;
@@ -100,8 +112,10 @@
     <canvas id="canvas"></canvas>
 
     <div id="hud">
+      <span id="level-display">Level 1 / 8</span>
+      <span id="level-title">First Delivery</span>
       <span id="phase-label">Planning</span>
-      <span id="sink-counter">0 / 3</span>
+      <span id="sink-counter">0 / 2</span>
       <div class="row">
         <button id="btn-run">Run</button>
         <button id="btn-reset" disabled>Reset</button>
@@ -110,8 +124,11 @@
 
     <div id="win-overlay">
       <h1>You Win!</h1>
-      <p>All items delivered.</p>
-      <button id="btn-play-again">Play Again</button>
+      <p id="win-message">All items delivered.</p>
+      <div class="row" style="pointer-events:auto">
+        <button id="btn-next-level">Next Level</button>
+        <button id="btn-play-again">Retry</button>
+      </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
