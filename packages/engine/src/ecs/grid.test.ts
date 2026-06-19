@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cellToWorld, worldToCell } from './grid.js';
+import { cellToWorld, worldToCell, cellInBounds } from './grid.js';
 
 // Cell size used throughout tests — picked to keep numbers readable
 const CELL = 1;
@@ -67,6 +67,42 @@ describe('worldToCell', () => {
     const coord = worldToCell(3, 3, CELL2); // centre of cell (1,1) with cellSize=2
     expect(coord.col).toBe(1);
     expect(coord.row).toBe(1);
+  });
+});
+
+describe('cellInBounds', () => {
+  const GRID = { cols: 10, rows: 8 };
+
+  it('returns true for a cell well inside the grid', () => {
+    expect(cellInBounds({ col: 5, row: 4 }, GRID)).toBe(true);
+  });
+
+  it('returns true for the top-left corner cell (0,0)', () => {
+    expect(cellInBounds({ col: 0, row: 0 }, GRID)).toBe(true);
+  });
+
+  it('returns true for the bottom-right corner cell (cols-1, rows-1)', () => {
+    expect(cellInBounds({ col: 9, row: 7 }, GRID)).toBe(true);
+  });
+
+  it('returns false when col equals cols (right edge, exclusive)', () => {
+    expect(cellInBounds({ col: 10, row: 0 }, GRID)).toBe(false);
+  });
+
+  it('returns false when row equals rows (bottom edge, exclusive)', () => {
+    expect(cellInBounds({ col: 0, row: 8 }, GRID)).toBe(false);
+  });
+
+  it('returns false for a negative column', () => {
+    expect(cellInBounds({ col: -1, row: 0 }, GRID)).toBe(false);
+  });
+
+  it('returns false for a negative row', () => {
+    expect(cellInBounds({ col: 0, row: -1 }, GRID)).toBe(false);
+  });
+
+  it('returns false for both col and row out of bounds', () => {
+    expect(cellInBounds({ col: 10, row: 8 }, GRID)).toBe(false);
   });
 });
 

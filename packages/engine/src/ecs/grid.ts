@@ -51,3 +51,23 @@ export function worldToCell(x: number, z: number, cellSize: number): GridCoord {
     row: Math.floor(z / cellSize),
   };
 }
+
+/**
+ * Return true if the given cell address falls within the grid bounds.
+ *
+ * @param coord        - The cell to test (fractional values are allowed; the
+ *                       integer part is what matters for containment).
+ * @param grid.cols    - Total number of columns (0-based: valid cols are 0 … cols-1)
+ * @param grid.rows    - Total number of rows    (0-based: valid rows are 0 … rows-1)
+ */
+export function cellInBounds(
+  coord: GridCoord,
+  grid: { cols: number; rows: number },
+): boolean {
+  return (
+    coord.col >= 0 &&
+    coord.col < grid.cols &&
+    coord.row >= 0 &&
+    coord.row < grid.rows
+  );
+}
