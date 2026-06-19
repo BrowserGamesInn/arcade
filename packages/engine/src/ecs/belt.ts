@@ -34,3 +34,13 @@ export function directionToRadians(dir: BeltDirection): number {
     case 'west':  return -Math.PI / 2;
   }
 }
+
+/** Grid-cell step for one hop in the given direction (col increases +X/east, row increases +Z/south). */
+export function directionToDelta(dir: BeltDirection): { dcol: number; drow: number } {
+  switch (dir) {
+    case 'east':  return { dcol:  1, drow:  0 };
+    case 'west':  return { dcol: -1, drow:  0 };
+    case 'south': return { dcol:  0, drow:  1 };
+    case 'north': return { dcol:  0, drow: -1 };
+  }
+}
