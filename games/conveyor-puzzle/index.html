@@ -6,9 +6,46 @@
     <title>Conveyor Puzzle</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #111; overflow: hidden; }
+      body { background: #0d0d14; overflow: hidden; }
       canvas { display: block; width: 100vw; height: 100vh; }
 
+      /* ── Title banner ───────────────────────────────────────────────────── */
+      #title-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: linear-gradient(180deg, rgba(13,13,20,0.92) 0%, rgba(13,13,20,0) 100%);
+        font-family: monospace;
+        user-select: none;
+        pointer-events: none;
+      }
+
+      #title-banner .game-name {
+        font-size: 15px;
+        font-weight: bold;
+        letter-spacing: 0.14em;
+        color: #ff8800;
+        text-transform: uppercase;
+      }
+
+      #title-banner .separator {
+        width: 1px;
+        height: 14px;
+        background: #333;
+      }
+
+      #title-banner .hint {
+        font-size: 10px;
+        color: #444;
+        letter-spacing: 0.06em;
+      }
+
+      /* ── HUD (top-right) ────────────────────────────────────────────────── */
       #hud {
         position: fixed;
         top: 16px;
@@ -30,86 +67,104 @@
       }
 
       #level-display {
-        font-size: 11px;
-        color: #666;
-        letter-spacing: 0.08em;
+        font-size: 10px;
+        color: #555;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
       }
 
       #level-title {
-        font-size: 13px;
-        color: #ccc;
+        font-size: 14px;
+        color: #ddd;
         font-weight: bold;
+        letter-spacing: 0.03em;
       }
 
       #phase-label {
-        font-size: 11px;
-        color: #888;
-        letter-spacing: 0.08em;
+        font-size: 10px;
+        color: #666;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
       }
 
       #sink-counter {
-        font-size: 15px;
+        font-size: 16px;
         color: #00ccff;
         font-weight: bold;
+        letter-spacing: 0.06em;
       }
 
       #hud button {
-        padding: 7px 18px;
-        border: 1px solid #555;
-        background: #1e1e1e;
-        color: #eee;
+        padding: 7px 20px;
+        border: 1px solid #3a3a4a;
+        background: rgba(255,255,255,0.04);
+        color: #ccc;
         font-family: monospace;
-        font-size: 13px;
+        font-size: 12px;
         cursor: pointer;
-        border-radius: 3px;
-        letter-spacing: 0.04em;
+        border-radius: 4px;
+        letter-spacing: 0.08em;
+        transition: background 0.1s, border-color 0.1s;
       }
 
-      #hud button:hover:not(:disabled) { background: #2e2e2e; border-color: #888; }
-      #hud button:disabled { opacity: 0.3; cursor: default; }
+      #hud button:hover:not(:disabled) {
+        background: rgba(255,255,255,0.09);
+        border-color: #666;
+        color: #fff;
+      }
+      #hud button:disabled { opacity: 0.25; cursor: default; }
 
+      /* ── Win overlay ────────────────────────────────────────────────────── */
       #win-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.72);
+        background: rgba(0, 0, 0, 0.80);
         display: none;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 28px;
+        gap: 24px;
         font-family: monospace;
         color: #eee;
       }
 
       #win-overlay h1 {
-        font-size: 52px;
-        color: #00ccff;
-        letter-spacing: 0.06em;
+        font-size: 56px;
+        color: #ff8800;
+        letter-spacing: 0.10em;
+        text-shadow: 0 0 40px rgba(255,136,0,0.4);
       }
 
       #win-overlay p {
-        font-size: 16px;
-        color: #aaa;
+        font-size: 15px;
+        color: #888;
+        letter-spacing: 0.04em;
       }
 
       #win-overlay button {
-        padding: 10px 32px;
-        border: 1px solid #00ccff;
+        padding: 10px 34px;
+        border: 1px solid #ff8800;
         background: transparent;
-        color: #00ccff;
+        color: #ff8800;
         font-family: monospace;
-        font-size: 15px;
+        font-size: 14px;
         cursor: pointer;
-        border-radius: 3px;
-        letter-spacing: 0.06em;
+        border-radius: 4px;
+        letter-spacing: 0.08em;
+        transition: background 0.1s;
       }
 
-      #win-overlay button:hover { background: rgba(0,204,255,0.1); }
+      #win-overlay button:hover { background: rgba(255,136,0,0.12); }
     </style>
   </head>
   <body>
     <canvas id="canvas"></canvas>
+
+    <div id="title-banner">
+      <span class="game-name">Conveyor Puzzle</span>
+      <div class="separator"></div>
+      <span class="hint">Click to place belt · Right-click to rotate</span>
+    </div>
 
     <div id="hud">
       <span id="level-display">Level 1 / 8</span>
@@ -123,7 +178,7 @@
     </div>
 
     <div id="win-overlay">
-      <h1>You Win!</h1>
+      <h1>Delivered!</h1>
       <p id="win-message">All items delivered.</p>
       <div class="row" style="pointer-events:auto">
         <button id="btn-next-level">Next Level</button>
