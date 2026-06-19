@@ -17,6 +17,7 @@ import {
 import type { BeltTile, MachineTile, SinkTile, SinkState, Item } from '@arcade/engine';
 import { LEVELS } from './levels.js';
 import type { Level } from './levels.js';
+import { playSpawn, playConsume, playWin } from './audio.js';
 
 type Phase = 'planning' | 'running' | 'won';
 
@@ -75,6 +76,7 @@ function buildMovementSystem(level: Level): MovementSystem {
       const s = sinkStates.find(x => x.col === sc && x.row === sr);
       if (s) s.consumed++;
       updateSinkCounter();
+      playConsume();
     },
   });
 }
@@ -93,6 +95,7 @@ function setPhase(p: Phase): void {
   btnReset.disabled       = p === 'planning';
   winOverlay.style.display = p === 'won' ? 'flex' : 'none';
   if (p === 'won') {
+    playWin();
     const isLast = currentLevel === LEVELS.length - 1;
     winMessage.textContent = isLast ? 'All levels complete!' : 'All items delivered.';
     btnNextLevel.style.display = isLast ? 'none' : '';
@@ -219,6 +222,7 @@ const loop = new GameLoop((dt) => {
       const sourceBelt = belts.get(`${source.col},${source.row}`);
       if (sourceBelt) {
         movement.add({ col: source.col, row: source.row, direction: sourceBelt.direction, progress: 0, color: 'a' });
+        playSpawn();
       }
       spawnAccum -= SPAWN_INTERVAL;
     }
