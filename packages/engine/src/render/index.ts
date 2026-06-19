@@ -12,3 +12,7 @@ export { createBeltTile } from './belt.js';
 export type { BeltTile, BeltTileOptions } from './belt.js';
 export { ItemRenderer } from './item-renderer.js';
 export type { ItemRendererOptions } from './item-renderer.js';
+export { createMachineTile } from './machine.js';
+export type { MachineTile, MachineTileOptions } from './machine.js';
+export { createSinkTile } from './sink.js';
+export type { SinkTile, SinkTileOptions } from './sink.js';

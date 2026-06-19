@@ -85,7 +85,7 @@ const loop = new GameLoop((dt) => {
   while (spawnAccum >= SPAWN_INTERVAL && movement.items.length < MAX_ITEMS) {
     const sourceBelt = belts.get(`${SOURCE.col},${SOURCE.row}`);
     if (sourceBelt) {
-      movement.add({ col: SOURCE.col, row: SOURCE.row, direction: sourceBelt.direction, progress: 0 });
+      movement.add({ col: SOURCE.col, row: SOURCE.row, direction: sourceBelt.direction, progress: 0, color: 'a' });
     }
     spawnAccum -= SPAWN_INTERVAL;
   }
