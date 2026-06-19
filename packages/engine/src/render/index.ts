@@ -10,3 +10,5 @@ export { Highlighter } from './highlighter.js';
 export type { HighlighterOptions } from './highlighter.js';
 export { createBeltTile } from './belt.js';
 export type { BeltTile, BeltTileOptions } from './belt.js';
+export { ItemRenderer } from './item-renderer.js';
+export type { ItemRendererOptions } from './item-renderer.js';
