@@ -14,6 +14,12 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^19.8.1
         version: 19.8.1
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.39.4
+      eslint-config-prettier:
+        specifier: ^10.1.5
+        version: 10.1.8(eslint@9.39.4(jiti@2.6.1))
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -23,6 +29,9 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.33.1
+        version: 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
 
   games/conveyor-puzzle:
     dependencies:
@@ -30,12 +39,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/engine
     devDependencies:
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.33.1
-        version: 8.61.1(@typescript-eslint/parser@8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.33.1
-        version: 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.39.4
       eslint:
         specifier: ^9.28.0
         version: 9.39.4(jiti@2.6.1)
@@ -45,6 +51,9 @@ importers:
       prettier:
         specifier: ^3.5.3
         version: 3.8.4
+      typescript-eslint:
+        specifier: ^8.33.1
+        version: 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       vite:
         specifier: ^6.3.5
         version: 6.4.3(@types/node@25.9.3)(jiti@2.6.1)
@@ -61,15 +70,12 @@ importers:
         specifier: ^0.177.0
         version: 0.177.0
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.39.4
       '@types/three':
         specifier: ^0.177.0
         version: 0.177.0
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.33.1
-        version: 8.61.1(@typescript-eslint/parser@8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.33.1
-        version: 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       eslint:
         specifier: ^9.28.0
         version: 9.39.4(jiti@2.6.1)
@@ -79,6 +85,9 @@ importers:
       prettier:
         specifier: ^3.5.3
         version: 3.8.4
+      typescript-eslint:
+        specifier: ^8.33.1
+        version: 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       vitest:
         specifier: ^3.2.3
         version: 3.2.6(@types/node@25.9.3)(jiti@2.6.1)
@@ -1352,6 +1361,13 @@ packages:
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
+
+  typescript-eslint@8.61.1:
+    resolution: {integrity: sha512-V7PayAfJokV3pEHgN7/v03D1SpujhRfQtYLbLIiBfDDncdg4PAiRBfoS4cnCANK4jmAPncczi59QO3afiXUlNw==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+      typescript: '>=4.8.4 <6.1.0'
 
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
@@ -2643,6 +2659,17 @@ snapshots:
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
+
+  typescript-eslint@8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3):
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 8.61.1(@typescript-eslint/parser@8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/typescript-estree': 8.61.1(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.61.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      eslint: 9.39.4(jiti@2.6.1)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
 
   typescript@5.9.3: {}
 
