@@ -8,3 +8,5 @@ export { setIsometricView } from './camera.js';
 export type { IsometricViewOptions } from './camera.js';
 export { Highlighter } from './highlighter.js';
 export type { HighlighterOptions } from './highlighter.js';
+export { createBeltTile } from './belt.js';
+export type { BeltTile, BeltTileOptions } from './belt.js';

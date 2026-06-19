@@ -20,6 +20,8 @@ export class PointerSystem {
   private ndcPointer = new THREE.Vector2();
   private clickListeners: Array<(e: GridPointerEvent) => void> = [];
   private hoverListeners: Array<(e: GridPointerEvent) => void> = [];
+  private rotateListeners: Array<(e: GridPointerEvent) => void> = [];
+  private lastHoverCell: GridPointerEvent | null = null;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -29,9 +31,11 @@ export class PointerSystem {
   ) {
     this.canvas.addEventListener('pointerdown', this.onPointerDown);
     this.canvas.addEventListener('pointermove', this.onPointerMove);
+    this.canvas.addEventListener('pointerleave', this.onPointerLeave);
+    window.addEventListener('keydown', this.onKeyDown);
   }
 
-  /** Register a callback fired on every grid cell click. Returns an unsubscribe fn. */
+  /** Register a callback fired on every left-click on the grid. Returns an unsubscribe fn. */
   onGridClick(fn: (e: GridPointerEvent) => void): () => void {
     this.clickListeners.push(fn);
     return () => {
@@ -47,9 +51,22 @@ export class PointerSystem {
     };
   }
 
+  /**
+   * Register a callback fired when the user presses R while hovering a grid cell.
+   * The event carries the last known hovered cell. Returns an unsubscribe fn.
+   */
+  onGridRotate(fn: (e: GridPointerEvent) => void): () => void {
+    this.rotateListeners.push(fn);
+    return () => {
+      this.rotateListeners = this.rotateListeners.filter((l) => l !== fn);
+    };
+  }
+
   destroy(): void {
     this.canvas.removeEventListener('pointerdown', this.onPointerDown);
     this.canvas.removeEventListener('pointermove', this.onPointerMove);
+    this.canvas.removeEventListener('pointerleave', this.onPointerLeave);
+    window.removeEventListener('keydown', this.onKeyDown);
   }
 
   /** Shared NDC→ray→plane→cell conversion used by both click and move handlers. */
@@ -66,13 +83,27 @@ export class PointerSystem {
   }
 
   private onPointerDown = (e: PointerEvent): void => {
+    if (e.button !== 0) return;
     const evt = this.hitCell(e);
     if (evt) this.clickListeners.forEach((l) => l(evt));
   };
 
   private onPointerMove = (e: PointerEvent): void => {
     const evt = this.hitCell(e);
-    if (evt) this.hoverListeners.forEach((l) => l(evt));
+    if (evt) {
+      this.lastHoverCell = evt;
+      this.hoverListeners.forEach((l) => l(evt));
+    }
+  };
+
+  private onPointerLeave = (): void => {
+    this.lastHoverCell = null;
+  };
+
+  private onKeyDown = (e: KeyboardEvent): void => {
+    if ((e.key === 'r' || e.key === 'R') && this.lastHoverCell) {
+      this.rotateListeners.forEach((l) => l(this.lastHoverCell!));
+    }
   };
 }
 
