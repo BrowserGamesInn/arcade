@@ -3,187 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Conveyor Puzzle</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #0d0d14; overflow: hidden; }
-      canvas { display: block; width: 100vw; height: 100vh; }
-
-      /* ── Title banner ───────────────────────────────────────────────────── */
-      #title-banner {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        background: linear-gradient(180deg, rgba(13,13,20,0.92) 0%, rgba(13,13,20,0) 100%);
-        font-family: monospace;
-        user-select: none;
-        pointer-events: none;
-      }
-
-      #title-banner .game-name {
-        font-size: 15px;
-        font-weight: bold;
-        letter-spacing: 0.14em;
-        color: #ff8800;
-        text-transform: uppercase;
-      }
-
-      #title-banner .separator {
-        width: 1px;
-        height: 14px;
-        background: #333;
-      }
-
-      #title-banner .hint {
-        font-size: 10px;
-        color: #444;
-        letter-spacing: 0.06em;
-      }
-
-      /* ── HUD (top-right) ────────────────────────────────────────────────── */
-      #hud {
-        position: fixed;
-        top: 16px;
-        right: 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 10px;
-        font-family: monospace;
-        color: #eee;
-        user-select: none;
-        pointer-events: none;
-      }
-
-      #hud .row {
-        display: flex;
-        gap: 8px;
-        pointer-events: auto;
-      }
-
-      #level-display {
-        font-size: 10px;
-        color: #555;
-        letter-spacing: 0.10em;
-        text-transform: uppercase;
-      }
-
-      #level-title {
-        font-size: 14px;
-        color: #ddd;
-        font-weight: bold;
-        letter-spacing: 0.03em;
-      }
-
-      #phase-label {
-        font-size: 10px;
-        color: #666;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      #sink-counter {
-        font-size: 16px;
-        color: #00ccff;
-        font-weight: bold;
-        letter-spacing: 0.06em;
-      }
-
-      #hud button {
-        padding: 7px 20px;
-        border: 1px solid #3a3a4a;
-        background: rgba(255,255,255,0.04);
-        color: #ccc;
-        font-family: monospace;
-        font-size: 12px;
-        cursor: pointer;
-        border-radius: 4px;
-        letter-spacing: 0.08em;
-        transition: background 0.1s, border-color 0.1s;
-      }
-
-      #hud button:hover:not(:disabled) {
-        background: rgba(255,255,255,0.09);
-        border-color: #666;
-        color: #fff;
-      }
-      #hud button:disabled { opacity: 0.25; cursor: default; }
-
-      /* ── Win overlay ────────────────────────────────────────────────────── */
-      #win-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.80);
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 24px;
-        font-family: monospace;
-        color: #eee;
-      }
-
-      #win-overlay h1 {
-        font-size: 56px;
-        color: #ff8800;
-        letter-spacing: 0.10em;
-        text-shadow: 0 0 40px rgba(255,136,0,0.4);
-      }
-
-      #win-overlay p {
-        font-size: 15px;
-        color: #888;
-        letter-spacing: 0.04em;
-      }
-
-      #win-overlay button {
-        padding: 10px 34px;
-        border: 1px solid #ff8800;
-        background: transparent;
-        color: #ff8800;
-        font-family: monospace;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 4px;
-        letter-spacing: 0.08em;
-        transition: background 0.1s;
-      }
-
-      #win-overlay button:hover { background: rgba(255,136,0,0.12); }
-    </style>
+    <title>Conveyor — Line Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div id="app">
+      <!-- Shared status rail (always visible, sits above all screens) -->
+      <header class="rail" role="banner">
+        <span class="rail__system">CONVEYOR · LINE CONTROL</span>
+        <span class="rail__context" id="rail-context" aria-live="polite"></span>
+      </header>
 
-    <div id="title-banner">
-      <span class="game-name">Conveyor Puzzle</span>
-      <div class="separator"></div>
-      <span class="hint">Click to place belt · Right-click to rotate</span>
-    </div>
+      <!-- ── Landing ──────────────────────────────────────────────────────── -->
+      <main id="screen-landing" class="screen" aria-label="Welcome">
+        <div class="landing__stage">
+          <p class="landing__eyebrow">THROUGHPUT PUZZLES</p>
+          <h1 class="landing__wordmark">CONVEYOR</h1>
+          <p class="landing__tagline">Route the materials. Meet the quota.</p>
 
-    <div id="hud">
-      <span id="level-display">Level 1 / 8</span>
-      <span id="level-title">First Delivery</span>
-      <span id="phase-label">Planning</span>
-      <span id="sink-counter">0 / 2</span>
-      <div class="row">
-        <button id="btn-run">Run</button>
-        <button id="btn-reset" disabled>Reset</button>
-      </div>
-    </div>
+          <!-- Animated conveyor band — purely decorative -->
+          <div class="landing__belt" aria-hidden="true">
+            <div class="belt-track">
+              <span class="belt-item belt-item--ore"></span>
+              <span class="belt-item belt-item--ore"></span>
+              <span class="belt-item belt-item--coolant"></span>
+              <span class="belt-item belt-item--ore"></span>
+              <span class="belt-item belt-item--coolant"></span>
+              <span class="belt-item belt-item--coolant"></span>
+              <span class="belt-item belt-item--ore"></span>
+            </div>
+          </div>
 
-    <div id="win-overlay">
-      <h1>Delivered!</h1>
-      <p id="win-message">All items delivered.</p>
-      <div class="row" style="pointer-events:auto">
-        <button id="btn-next-level">Next Level</button>
-        <button id="btn-play-again">Retry</button>
-      </div>
+          <button class="btn-primary" id="btn-start">START LINE</button>
+          <p class="landing__hint">8 lines to master</p>
+        </div>
+      </main>
+
+      <!-- ── Level select ─────────────────────────────────────────────────── -->
+      <main id="screen-levels" class="screen" aria-label="Select a line">
+        <div class="levels-header">
+          <h2 class="levels-title">SELECT LINE</h2>
+          <p class="levels-sub">Route each line to unlock the next</p>
+        </div>
+        <div id="levels-map" role="list" aria-label="Lines"></div>
+      </main>
+
+      <!-- ── Game ─────────────────────────────────────────────────────────── -->
+      <main id="screen-game" class="screen" aria-label="Game">
+        <canvas id="canvas"></canvas>
+
+        <!-- HUD overlay -->
+        <div id="hud" role="complementary" aria-label="Controls">
+          <div class="hud__back">
+            <button id="btn-back" class="btn-ghost btn-ghost--small">&#8592; Lines</button>
+          </div>
+
+          <div class="hud__info">
+            <span class="hud__code" id="level-code">LV.01</span>
+            <span class="hud__title" id="level-title">First Delivery</span>
+          </div>
+
+          <span
+            class="hud__lamp"
+            id="status-lamp"
+            data-phase="planning"
+            role="status"
+            aria-label="Phase: planning"
+            >PLANNING</span
+          >
+
+          <div class="hud__gauge" aria-label="Items delivered">
+            <span class="hud__gauge-label">DELIVERED</span>
+            <span class="hud__gauge-count" id="sink-gauge">0 / 2</span>
+          </div>
+
+          <div class="hud__controls">
+            <button id="btn-run" class="btn-action btn-action--run">Run</button>
+            <button id="btn-reset" class="btn-action" disabled>Reset</button>
+          </div>
+
+          <p class="hud__hint" aria-hidden="true">Click place belt &middot; Right-click rotate</p>
+        </div>
+
+        <!-- Win overlay -->
+        <div
+          id="win-overlay"
+          role="dialog"
+          aria-label="Level complete"
+          aria-modal="true"
+          aria-hidden="true"
+        >
+          <div class="win-panel">
+            <p class="win-eyebrow">DELIVERY CONFIRMED</p>
+            <h2 class="win-headline">&#10003;</h2>
+            <p class="win-message" id="win-message">All items delivered.</p>
+            <div class="win-actions">
+              <button id="btn-next-level" class="btn-primary">Next Line</button>
+              <button id="btn-level-select" class="btn-ghost">Level Select</button>
+              <button id="btn-play-again" class="btn-ghost">Retry</button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

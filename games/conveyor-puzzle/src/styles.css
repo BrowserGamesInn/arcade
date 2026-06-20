@@ -1,0 +1,825 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   CONVEYOR — Control Room design system
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Surface */
+  --floor: #0b0e14;
+  --steel: #151a24;
+  --grid: #232b3a;
+
+  /* Text */
+  --label: #c9d2e3;
+  --dim: #66718a;
+
+  /* Material accents — used only to mean the two cargo types */
+  --ore: #ff7a1a;
+  --coolant: #2dd4e8;
+
+  /* Typography */
+  --font-display: 'Chakra Petch', 'system-ui', sans-serif;
+  --font-body: 'IBM Plex Sans', 'system-ui', sans-serif;
+  --font-data: 'IBM Plex Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+
+  /* Rail height */
+  --rail-h: 44px;
+}
+
+/* ── 2. Reset ────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--floor);
+  color: var(--label);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--ore);
+  outline-offset: 3px;
+}
+
+/* ── 3. Isometric grid background (menu screens only) ───────────────────────── */
+.iso-bg {
+  background-color: var(--floor);
+  background-image:
+    linear-gradient(30deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(150deg, var(--grid) 1px, transparent 1px);
+  background-size: 56px 32px;
+}
+
+/* ── 4. Status rail ──────────────────────────────────────────────────────────── */
+.rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--rail-h);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--grid);
+  background: rgba(11, 14, 20, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+.rail__system {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.rail__context {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--ore);
+  text-transform: uppercase;
+}
+
+/* ── 5. Screen chassis ───────────────────────────────────────────────────────── */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  padding-top: var(--rail-h);
+}
+
+/* Landing */
+#screen-landing.screen--active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#screen-landing {
+  background-color: var(--floor);
+  background-image:
+    linear-gradient(30deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(150deg, var(--grid) 1px, transparent 1px);
+  background-size: 56px 32px;
+}
+
+/* Level select */
+#screen-levels.screen--active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  padding-bottom: 48px;
+}
+#screen-levels {
+  background-color: var(--floor);
+  background-image:
+    linear-gradient(30deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(150deg, var(--grid) 1px, transparent 1px);
+  background-size: 56px 32px;
+}
+
+/* Game — canvas fills the full window, HUD/overlays sit on top */
+#screen-game.screen--active {
+  display: block;
+}
+
+/* ── 6. Shared buttons ───────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 36px;
+  background: transparent;
+  border: 1px solid var(--ore);
+  color: var(--ore);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.btn-primary:hover {
+  background: var(--ore);
+  color: var(--floor);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 24px;
+  background: transparent;
+  border: 1px solid var(--grid);
+  color: var(--dim);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.btn-ghost:hover {
+  border-color: var(--label);
+  color: var(--label);
+}
+
+.btn-ghost--small {
+  padding: 5px 14px;
+  font-size: 0.75rem;
+}
+
+/* ── 7. Landing screen ───────────────────────────────────────────────────────── */
+.landing__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 560px;
+  width: 100%;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.landing__eyebrow {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.landing__wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--label);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.landing__tagline {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+}
+
+/* Animated conveyor belt */
+.landing__belt {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 40px;
+  overflow: hidden;
+  border-top: 1px solid var(--grid);
+  border-bottom: 1px solid var(--grid);
+  /* Scrolling belt-surface texture */
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 20px
+  );
+  animation: belt-surface 1s linear infinite;
+}
+
+@keyframes belt-surface {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 20px 0;
+  }
+}
+
+.belt-track {
+  position: absolute;
+  inset: 0;
+}
+
+.belt-item {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  animation: belt-travel 3.5s linear infinite;
+}
+.belt-item--ore {
+  background: var(--ore);
+  box-shadow: 0 0 8px var(--ore);
+}
+.belt-item--coolant {
+  background: var(--coolant);
+  box-shadow: 0 0 8px var(--coolant);
+}
+
+/* Evenly-spaced stagger across a 3.5 s cycle (7 items, 0.5 s apart) */
+.belt-item:nth-child(1) {
+  animation-delay: 0s;
+}
+.belt-item:nth-child(2) {
+  animation-delay: -0.5s;
+}
+.belt-item:nth-child(3) {
+  animation-delay: -1s;
+}
+.belt-item:nth-child(4) {
+  animation-delay: -1.5s;
+}
+.belt-item:nth-child(5) {
+  animation-delay: -2s;
+}
+.belt-item:nth-child(6) {
+  animation-delay: -2.5s;
+}
+.belt-item:nth-child(7) {
+  animation-delay: -3s;
+}
+
+@keyframes belt-travel {
+  from {
+    left: 105%;
+  }
+  to {
+    left: -20px;
+  }
+}
+
+.landing__hint {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  color: var(--dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── 8. Level select screen ──────────────────────────────────────────────────── */
+.levels-header {
+  padding: 36px 24px 28px;
+  text-align: center;
+}
+
+.levels-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--label);
+  text-transform: uppercase;
+}
+
+.levels-sub {
+  margin-top: 6px;
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+/* Routing grid (snake layout, 7 cols × 3 rows) */
+.routing-grid {
+  display: grid;
+  grid-template-columns: 152px 52px 152px 52px 152px 52px 152px;
+  grid-template-rows: auto 44px auto;
+  align-items: center;
+  justify-items: center;
+  padding: 0 24px 8px;
+}
+
+/* ── Station cards ──────────────────────────────────────────── */
+.station {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 152px;
+  padding: 14px 16px;
+  background: var(--steel);
+  border: 1px solid var(--grid);
+  color: var(--label);
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  overflow: visible;
+}
+.station:not(:disabled):hover {
+  border-color: var(--label);
+  box-shadow: 0 0 0 1px var(--grid) inset;
+}
+
+.station--locked {
+  opacity: 0.45;
+}
+
+.station--done {
+  border-color: rgba(255, 122, 26, 0.35);
+}
+.station--done:not(:disabled):hover {
+  border-color: var(--ore);
+}
+
+.station__code {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.station__name {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--label);
+  line-height: 1.2;
+}
+
+.station__specs {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.station__spec {
+  font-family: var(--font-data);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Material color dots inside station spec */
+.material-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+.material-dot--a {
+  background: var(--ore);
+}
+.material-dot--b {
+  background: var(--coolant);
+}
+
+/* Diagonal "DELIVERED" stamp */
+.station__stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--ore);
+  border: 2px solid var(--ore);
+  padding: 3px 10px;
+  white-space: nowrap;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.station__lock {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 0.875rem;
+  opacity: 0.6;
+}
+
+/* ── Routing connectors ─────────────────────────────────────── */
+.connector--right,
+.connector--left {
+  width: 100%;
+  height: 2px;
+  align-self: center;
+  background: var(--grid);
+}
+
+.connector--down {
+  width: 2px;
+  height: 100%;
+  align-self: stretch;
+  justify-self: center;
+  background: var(--grid);
+}
+
+/* Energized: traveling dashes */
+.connector--right.connector--energized,
+.connector--left.connector--energized {
+  background-image: linear-gradient(
+    90deg,
+    var(--ore) 0px,
+    var(--ore) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  background-size: 16px 2px;
+  background-repeat: repeat-x;
+  background-color: transparent;
+}
+
+.connector--right.connector--energized {
+  animation: flow-right 0.55s linear infinite;
+}
+
+.connector--left.connector--energized {
+  animation: flow-left 0.55s linear infinite;
+}
+
+.connector--down.connector--energized {
+  background-image: linear-gradient(
+    180deg,
+    var(--ore) 0px,
+    var(--ore) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  background-size: 2px 16px;
+  background-repeat: repeat-y;
+  background-color: transparent;
+  animation: flow-down 0.55s linear infinite;
+}
+
+@keyframes flow-right {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 16px 0;
+  }
+}
+
+@keyframes flow-left {
+  from {
+    background-position: 16px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@keyframes flow-down {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 16px;
+  }
+}
+
+/* ── 9. Game screen ──────────────────────────────────────────────────────────── */
+#canvas {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#hud {
+  position: fixed;
+  top: calc(var(--rail-h) + 12px);
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hud__back {
+  pointer-events: auto;
+}
+
+.hud__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.hud__code {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.hud__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--label);
+}
+
+/* Status lamp */
+.hud__lamp {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+}
+.hud__lamp[data-phase='planning'] {
+  color: var(--dim);
+}
+.hud__lamp[data-phase='running'] {
+  color: var(--coolant);
+}
+.hud__lamp[data-phase='won'] {
+  color: var(--ore);
+}
+
+/* Sink gauge */
+.hud__gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.hud__gauge-label {
+  font-family: var(--font-data);
+  font-size: 0.5625rem;
+  letter-spacing: 0.16em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.hud__gauge-count {
+  font-family: var(--font-data);
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--coolant);
+}
+
+/* Action buttons */
+.hud__controls {
+  display: flex;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.btn-action {
+  padding: 7px 18px;
+  background: rgba(21, 26, 36, 0.72);
+  border: 1px solid var(--grid);
+  color: var(--label);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  backdrop-filter: blur(4px);
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    color 0.12s;
+}
+.btn-action:hover:not(:disabled) {
+  background: rgba(35, 43, 58, 0.9);
+  border-color: var(--label);
+}
+.btn-action:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.btn-action--run {
+  border-color: rgba(45, 212, 232, 0.5);
+  color: var(--coolant);
+}
+.btn-action--run:hover:not(:disabled) {
+  background: rgba(45, 212, 232, 0.1);
+  border-color: var(--coolant);
+}
+
+.hud__hint {
+  font-family: var(--font-data);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  color: var(--grid);
+  text-transform: uppercase;
+}
+
+/* ── 10. Win overlay ─────────────────────────────────────────────────────────── */
+#win-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 14, 20, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+#win-overlay.win-overlay--visible {
+  display: flex;
+}
+
+.win-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 48px;
+  background: var(--steel);
+  border: 1px solid var(--grid);
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+}
+
+.win-eyebrow {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--ore);
+  text-transform: uppercase;
+}
+
+.win-headline {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--ore);
+  text-shadow: 0 0 32px rgba(255, 122, 26, 0.4);
+  line-height: 1;
+}
+
+.win-message {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+}
+
+.win-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.win-actions .btn-primary,
+.win-actions .btn-ghost {
+  width: 100%;
+}
+
+/* ── 11. Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Collapse routing grid to a flex column of station cards */
+  .routing-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px 16px;
+    /* Reset all explicit grid placement set via inline styles */
+  }
+
+  .routing-grid .station {
+    grid-column: unset !important;
+    grid-row: unset !important;
+    width: min(340px, 100%);
+  }
+
+  .connector--right,
+  .connector--left,
+  .connector--down {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing__wordmark {
+    font-size: 2.5rem;
+  }
+
+  #hud {
+    right: 8px;
+    top: calc(var(--rail-h) + 6px);
+    gap: 8px;
+  }
+
+  .win-panel {
+    padding: 28px 24px;
+  }
+}
+
+/* ── 12. Accessibility: focus & reduced motion ───────────────────────────────── */
+.station:focus-visible {
+  outline: 2px solid var(--ore);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .belt-item,
+  .landing__belt,
+  .connector--right.connector--energized,
+  .connector--left.connector--energized,
+  .connector--down.connector--energized {
+    animation: none;
+  }
+
+  /* Energized connectors remain visually distinct (solid ore color) */
+  .connector--right.connector--energized,
+  .connector--left.connector--energized,
+  .connector--down.connector--energized {
+    background-image: none;
+    background-color: var(--ore);
+    opacity: 0.6;
+  }
+}
